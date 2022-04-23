@@ -1,0 +1,104 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if messages %}
+    {% for message in messages %}
+        <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
+            <a href="#" class="close" data-dismiss="alert">&times;</a>
+            <strong>{{ message.tags }}: </strong>{{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <h2>{{listing.name}}</h2>
+    <button type="button" class="{{ btn }}" onclick="fun2()">Watchlist</button>
+    <div>
+        <div class="image">
+            <img src="/img/{{ listing.pic }}">
+        </div>
+        <p>{{ listing.itemText|safe }}</p>
+        <h2>Starting at: ${{ listing.price }}<small class="text-muted">{{msg}}</small></h2>
+
+        <p>{{ num }}bid(s) so far. Your bid is the current bid</p>
+        <form id="f" action="/listing/{{ listing.ID }}" method="POST" novalidate onkeydown="if(event.keyCode==13)return false;">
+            {% csrf_token %}
+            <div class="form-group">
+                <input class="form-control" type="text" name="bid" placeholder="Bid" {{ i }}>
+            </div>
+            <input type="hidden" name="h" value="bid" id="h">
+            <div class="form-group">
+                <input class="btn btn-primary" type="button" value="close" onclick="fun4()" {{ btn1 }}>
+                <input class="btn btn-primary" type="button" value="Place Bid" onclick="fun3()" {{ btn2 }}>
+            </div>
+        </form>
+
+        <h3>Details</h3>
+        <ul>
+            <li>Listed by: <a href="/user/{{listing.seller}}">{{ listing.seller|safe }}</a></li>
+            <li>Category: {{ listing.get_category_display }}</li>
+            <li>Created Time: {{ listing.createTime }}</li>
+        </ul>
+
+        <h3>Commends</h3>
+        <div class="form-group">
+            <form action="/listing/{{ listing.ID }}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea class="form-control" name="com" placeholder="Commend" style="word-break:break-all"></textarea>
+                </div>
+                <input name="h" type="hidden" value="com">
+                <div class="form-group">
+                    <input class="btn btn-primary" type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+        {% for commend in commends %}
+        <div class="media">
+            <div class="media-left commend">
+                <h6 class="media-heading">
+                    <a href="/user/{{ commend.user }}">{{ commend.user }}</a>
+                </h6>
+            </div>
+            <div class="media-body">
+                <p class="text-muted">Published {{ listing.createTime }}</p>
+                <p class="content">{{ commend.text }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+        <script>
+            $(function(){
+                $(".close").click(function(){
+                    $("#myAlert").alert('close');
+                    $("#myAlert2").alert('close');
+                });
+            });
+            function fun1()
+            {
+                var f=document.getElementById("f");
+                f.submit()
+            }
+            function fun2()
+            {
+                var h=document.getElementById("h");
+                h.value="wl"
+                fun1()
+            }
+            function fun3()
+            {
+                var h=document.getElementById("h");
+                h.value="bid"
+                fun1()
+            }
+            function fun4()
+            {
+                var h=document.getElementById("h");
+                h.value="close"
+                fun1()
+            }
+
+        </script>
+    </div>
+
+{% endblock %}
